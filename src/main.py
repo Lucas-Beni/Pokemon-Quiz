@@ -1,34 +1,42 @@
 import flet as ft
 
-
 def main(page: ft.Page):
-    counter = ft.Text("0", size=50, data=0)
-    t = ft.Text(value=f"Você está no clique n°{counter.value}", color="green")
+    page.title = "PokeQuizz - Tela Inicial"
+    page.padding = 0
+    page.bgcolor = ft.Colors.BLACK
 
-    def increment_click(e):
-        counter.data += 1
-        counter.value = str(counter.data)
-        t.value = f"Você está no clique n°{counter.data}"
-        counter.update()
-        t.update()
-
-    page.floating_action_button = ft.FloatingActionButton(
-        icon=ft.Icons.ADD, on_click=increment_click
+    # Força o GIF a ter tamanho da página
+    gif_fundo = ft.Image(
+        src="src/assets/tela-inicial.gif",
+        fit=ft.ImageFit.COVER,
+        width=page.width,
+        height=page.height
     )
-    page.add(
-        t,
-        ft.SafeArea(
+
+    botao_jogar = ft.ElevatedButton(
+        text="Jogar",
+        on_click=lambda e: print("Iniciar jogo...")
+    )
+
+    conteudo = ft.Stack(
+        controls=[
+            gif_fundo,
             ft.Container(
-                counter,
+                content=ft.Column(
+                    controls=[botao_jogar],
+                    alignment=ft.MainAxisAlignment.CENTER,
+                    horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                    spacing=20,
+                ),
                 alignment=ft.alignment.center,
-            ),
-            expand=True,
-        ),
-        ft.Row(controls=[
-            ft.TextField(label="Your name"),
-            ft.ElevatedButton(text="Say my name!")
-        ])
+                expand=True
+            )
+        ],
+        expand=True
     )
 
+    page.add(conteudo)
 
-ft.app(main)
+
+# Para rodar em janela de app nativo (desktop ou mobile)
+ft.app(target=main,view=ft.WEB_BROWSER)

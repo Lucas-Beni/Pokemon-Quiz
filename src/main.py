@@ -1,9 +1,10 @@
 import flet as ft
 from screens.tela_inicial import TelaInicial
 from screens.tela_selecao import TelaSelecaoRegiao
+from screens.tela_quiz import TelaQuiz  # uma única tela para qualquer região
 
 def main(page: ft.Page):
-    # Configuração da janela
+    # Configurações da janela
     page.title = "PokeQuizz - Tela Inicial"
     page.window.width = 1600
     page.window.height = 900
@@ -12,17 +13,16 @@ def main(page: ft.Page):
     page.bgcolor = ft.Colors.BLACK
 
     # Função chamada ao clicar em "Jogar"
-    def iniciar_jogo(e):
-        def iniciar_quiz(regiao):
+    def iniciar_jogo(_):
+        def iniciar_quiz(regiao):  # chamada quando a região é selecionada
             print(f"Iniciando quiz da região: {regiao}")
-            # Futuramente: page.clean(); page.add(TelaQuiz(regiao))
-        
+            page.clean()
+            page.add(TelaQuiz(regiao))  # cria a tela do quiz com base na região
+
         page.clean()
-        tela_selecao = TelaSelecaoRegiao(iniciar_quiz)
-        page.add(tela_selecao)
+        page.add(TelaSelecaoRegiao(iniciar_quiz))
 
     # Tela inicial
-    tela = TelaInicial(iniciar_jogo)
-    page.add(tela)
+    page.add(TelaInicial(iniciar_jogo))
 
 ft.app(target=main)

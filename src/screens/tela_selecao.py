@@ -1,10 +1,11 @@
 import flet as ft
 
 class TelaSelecaoRegiao(ft.Container):
-    def __init__(self, ao_selecionar_callback):
-        super().__init__()
+    def __init__(self, ao_selecionar_callback):# Construtor da classe TelaInicial, recebe a função que será chamada ao clicar em "Jogar"
+        super().__init__() # esse comando é comum em classes que usam outras classes. Nesse caso o super() chama a classe mãe UserControl e permite que seja inicializado corretamente
 
-        self.ao_selecionar_callback = ao_selecionar_callback
+
+        self.ao_selecionar_callback = ao_selecionar_callback # cria a função que será chamada quando o botão jogar for clicado
 
         
         self.gif_fundo = ft.Image( # componente para exibir uma imagem ou GIF
@@ -14,29 +15,39 @@ class TelaSelecaoRegiao(ft.Container):
             height=900, # define a altura do GIF
         )
 
-        regioes = [
-            "Kanto", "Johto", "Hoenn", "Sinnoh",
-            "Unova", "Kalos", "Alola", "Galar", "Paldea", "National Dex"
-        ]
+        self.regioes = { # cria uma lista com o nome de todas as regioes e a national dex
+            "Kanto": "kanto",
+            "Johto": "updated-johto",
+            "Hoenn": "hoenn",
+            "Sinnoh": "original-sinnoh",
+            "Unova": "updated-unova",
+            "Kalos (Central)": "kalos-central",
+            "Kalos (Coastal)": "kalos-coastal",
+            "Kalos (Mountain)": "kalos-mountain",
+            "Alola": "updated-alola",
+            "Galar": "galar",
+            "Paldea": "paldea",
+            "National Dex": "national"
+        }
 
-        botoes = [
+        botoes = [ # cria um botão com o nome de cada uma das regiões e aplica a função ao_selecionar_callback
             ft.ElevatedButton(
-                text=regiao,
-                on_click=lambda e, r=regiao: self.ao_selecionar_callback(r),
+                text=nome_visivel,
+                on_click=lambda e, valor_api=nome_api: self.ao_selecionar_callback(valor_api),
                 width=200
             )
-            for regiao in regioes
+            for nome_visivel, nome_api in self.regioes.items()
         ]
 
-        self.conteudo_interface = ft.Column(
+        self.conteudo_interface = ft.Column( # variável que contém o titulo da pagina e os botões de cada região
             controls=[
-                ft.Text(
+                ft.Text( # cria o texto que será utilizado como titulo
                     "Escolha uma região para o quiz:",
                     size=30,
                     weight="bold",
                     color=ft.Colors.WHITE
                 ),
-                ft.Row(
+                ft.Row( # cria uma linha que posiciona todos os botões em sequencia no meio da tela
                     controls=botoes,
                     wrap=True,
                     alignment=ft.MainAxisAlignment.CENTER,
@@ -44,19 +55,16 @@ class TelaSelecaoRegiao(ft.Container):
                     run_spacing=20
                 )
             ],
-            alignment=ft.MainAxisAlignment.CENTER,
-            horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-            spacing=30
+            alignment=ft.MainAxisAlignment.CENTER, # posiciona a variavel conteudo_interface no centro verticalmente
+            horizontal_alignment=ft.CrossAxisAlignment.CENTER, # posiciona a variavel conteudo_interface no centro horizontalmente
+            spacing=30 # coloca um espaçamento para as outras variaveis
         )
 
-        self.content = ft.Stack(
+        self.content = ft.Stack( # coloca os elementos na tela por meio do comando .content original do flet
             controls=[
-                self.gif_fundo,
-                self.conteudo_interface
+                self.gif_fundo, # coloca o gif de fundo como camada mais inferior da tela
+                self.conteudo_interface # coloca a variavel conteudo_interface que contem os titulos e todos os botões
             ],
-            width=1600,
-            height=900
+            width=1600, # define a largura do conteudo na tela
+            height=900 # define a altura do conteudo na tela
         )
-
-        # self.expand = True
-        # self.alignment = ft.alignment.center

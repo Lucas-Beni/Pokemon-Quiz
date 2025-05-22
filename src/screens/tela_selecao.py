@@ -16,17 +16,15 @@ class TelaSelecaoRegiao(ft.Container):
         )
 
         self.regioes = { # cria uma lista com o nome de todas as regioes e a national dex
-            "Kanto": "kanto",
-            "Johto": "updated-johto",
-            "Hoenn": "hoenn",
-            "Sinnoh": "original-sinnoh",
-            "Unova": "updated-unova",
-            "Kalos (Central)": "kalos-central",
-            "Kalos (Coastal)": "kalos-coastal",
-            "Kalos (Mountain)": "kalos-mountain",
-            "Alola": "updated-alola",
-            "Galar": "galar",
-            "Paldea": "paldea",
+            "Kanto": "1",
+            "Johto": "2",
+            "Hoenn": "3",
+            "Sinnoh": "4",
+            "Unova": "5",
+            "Kalos": "6",
+            "Alola": "7",
+            "Galar": "8",
+            "Paldea": "9",
             "National Dex": "national"
         }
 

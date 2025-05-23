@@ -6,11 +6,9 @@ class TelaQuiz(ft.Container):
         super().__init__()
         self.regiao = regiao # salva a região escolhida
 
-        self.gif_fundo = ft.Image( # componente para exibir uma imagem ou GIF
-            src="src/assets/tela-inicial.gif", # caminho para o arquivo do GIF 
+        self.img_fundo = ft.Image( # componente para exibir uma imagem ou GIF
+            src="src/assets/fundo_pc.png", # caminho para o arquivo do GIF 
             fit=ft.ImageFit.COVER, # ajusta a imagem para cobrir toda a área (mantendo proporção)
-            width=1600,# define a largura do GIF 
-            height=900, # define a altura do GIF
         )
 
         self.lista_pokemon = [] # cria a lista na qual será armazenados os pokemon
@@ -72,7 +70,7 @@ class TelaQuiz(ft.Container):
         # Layout da tela
         self.conteudo_interface = ft.Column(
             controls=[
-                ft.Container(content=self.input_nome, margin=ft.margin.only(top=20, bottom=10)),
+                ft.Container(content=self.input_nome, margin=ft.margin.only(top=20, bottom=130)),
                 ft.Container(content=scroll_coluna, height=600)
             ],
             alignment=ft.MainAxisAlignment.START,
@@ -81,7 +79,7 @@ class TelaQuiz(ft.Container):
 
         self.content = ft.Stack(
             controls=[
-                self.gif_fundo,
+                self.img_fundo,
                 ft.Container(
                     content=self.conteudo_interface,
                     padding=20,
@@ -92,18 +90,24 @@ class TelaQuiz(ft.Container):
 
         print(self.lista_pokemon)
 
-    def adicionar_pokemon(self, numero, nome, pokemon_id):
-        sprite_url = f"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/{pokemon_id}.png"
-        sprite = ft.Image(src=sprite_url, width=32, height=32, opacity=1)
-        nome_texto = ft.Text(value=nome.capitalize(), visible=True, color="white")
+    def adicionar_pokemon(self, numero, nome, pokemon_id): # função para adicionar os pokemon na lista_pokemon
+        sprite_url = f"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/{pokemon_id}.png" # salva o sprite do pokemon correspondente
+        sprite = ft.Image(
+            src=sprite_url,
+            width=64,
+            height=64,
+            color="Black", # Aplica cor preta
+            opacity=1,
+        ) # cria a imagem do sprite
+        nome_texto = ft.Text(value=nome.capitalize(), opacity=0, color="white", size=15) # cria o nome do pokemon que fica escondido até ser descoberto
 
-        coluna = ft.Column(
+        coluna = ft.Column( # cria a coluna de cada pokemon
             controls=[
-                ft.Text(str(numero), color="white"),
-                sprite,
-                nome_texto
+                ft.Text(str(numero), color="white", size=15), # coloca como item mais alto na coluna
+                sprite, # coloca o sprite como item central na coluna
+                nome_texto # coloca o nome do pokemon como item mais baixo na coluna
             ],
-            horizontal_alignment=ft.CrossAxisAlignment.CENTER
+            horizontal_alignment=ft.CrossAxisAlignment.CENTER # alinha todos os itens da coluna
         )
 
-        self.lista_pokemon.append((nome, sprite, nome_texto, coluna))
+        self.lista_pokemon.append((nome, sprite, nome_texto, coluna)) # adiciona todas as informações dos pokemon na lista_pokemon

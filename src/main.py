@@ -10,7 +10,7 @@ def main(page: ft.Page):
     page.window.height = 900
     page.window.center()
     page.padding = 0
-    page.bgcolor = ft.Colors.BLACK
+    page.bgcolor = ft.Colors.WHITE
 
     # Função chamada ao clicar em "Jogar"
     def iniciar_jogo(_):

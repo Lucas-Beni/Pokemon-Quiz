@@ -47,7 +47,7 @@ class TelaQuiz(ft.Container):
             controls=[
                 ft.Container(
                     content=coluna,
-                    col={"xs": 4, "sm": 3, "md": 2, "lg": 1},
+                    col={"xs": 4, "sm": 3, "md": 2, "lg": 1}, # configura a quantidade de colunas por tamanho de tela
                     padding=3
                 )
                 for _, _, _, coluna in self.lista_pokemon
@@ -57,7 +57,9 @@ class TelaQuiz(ft.Container):
         # Campo de input para adivinhação
         self.input_nome = ft.TextField(
             label="Digite o nome do Pokémon",
-            width=300
+            width=300,
+            color="White",
+            on_change=self.verificar_nome
         )
 
         # Scroll com altura ajustada
@@ -111,3 +113,16 @@ class TelaQuiz(ft.Container):
         )
 
         self.lista_pokemon.append((nome, sprite, nome_texto, coluna)) # adiciona todas as informações dos pokemon na lista_pokemon
+
+    def verificar_nome(self, e):
+        nome_digitado = e.control.value.lower()
+
+        for nome, sprite, nome_texto, coluna in self.lista_pokemon:
+            if nome_digitado == nome_texto.value.lower() and sprite.opacity == 0:
+                sprite.color = None
+                sprite.opacity = 1
+                self.input_nome.value = ""
+                nome_texto.opacity = 1
+                sprite.update()
+                self.input_nome.update()
+                nome_texto.update()

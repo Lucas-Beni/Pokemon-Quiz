@@ -46,12 +46,22 @@ class TelaQuiz(ft.Container):
         self.grid = ft.ResponsiveRow(
             controls=[
                 ft.Container(
-                    content=coluna,
+                    content=pokemon["coluna"],
                     col={"xs": 4, "sm": 3, "md": 2, "lg": 1}, # configura a quantidade de colunas por tamanho de tela
                     padding=3
                 )
-                for _, _, _, coluna in self.lista_pokemon
+                for pokemon in self.lista_pokemon
             ]
+        )
+
+        self.streak = 0
+        self.ultimo_numero_descoberto = 0
+        self.pontos = 0
+
+        self.pontuacao = ft.Text(
+            f"Pontos: {self.pontos} (Streak x{self.streak})",
+            color="White",
+            size=15
         )
 
         # Campo de input para adivinhação
@@ -72,7 +82,18 @@ class TelaQuiz(ft.Container):
         # Layout da tela
         self.conteudo_interface = ft.Column(
             controls=[
-                ft.Container(content=self.input_nome, margin=ft.margin.only(top=20, bottom=130)),
+                ft.Container(  # linha com input e pontuação
+                    content=ft.Row(
+                        controls=[
+                            self.input_nome,
+                            self.pontuacao
+                        ],
+                        alignment=ft.MainAxisAlignment.SPACE_BETWEEN,  # separa os elementos
+                        vertical_alignment=ft.CrossAxisAlignment.CENTER
+                    ),
+                    width=800,  # largura máxima da linha (ajuste como quiser)
+                    margin=ft.margin.only(top=20, bottom=130)
+                ),
                 ft.Container(content=scroll_coluna, height=600)
             ],
             alignment=ft.MainAxisAlignment.START,
@@ -103,26 +124,50 @@ class TelaQuiz(ft.Container):
         ) # cria a imagem do sprite
         nome_texto = ft.Text(value=nome.capitalize(), opacity=0, color="white", size=15) # cria o nome do pokemon que fica escondido até ser descoberto
 
+        descoberto = False
+
         coluna = ft.Column( # cria a coluna de cada pokemon
             controls=[
                 ft.Text(str(numero), color="white", size=15), # coloca como item mais alto na coluna
                 sprite, # coloca o sprite como item central na coluna
-                nome_texto # coloca o nome do pokemon como item mais baixo na coluna
+                nome_texto, # coloca o nome do pokemon como item mais baixo na coluna
             ],
             horizontal_alignment=ft.CrossAxisAlignment.CENTER # alinha todos os itens da coluna
         )
 
-        self.lista_pokemon.append((nome, sprite, nome_texto, coluna)) # adiciona todas as informações dos pokemon na lista_pokemon
+        self.lista_pokemon.append({
+            "nome": nome, 
+            "sprite": sprite, 
+            "nome_texto": nome_texto, 
+            "coluna": coluna,
+            "descoberto": descoberto
+            }) # adiciona todas as informações dos pokemon na lista_pokemon
 
     def verificar_nome(self, e):
-        nome_digitado = e.control.value.lower()
+        nome_digitado = e.control.value.strip().lower()
 
-        for nome, sprite, nome_texto, coluna in self.lista_pokemon:
-            if nome_digitado == nome_texto.value.lower() and sprite.opacity == 0:
-                sprite.color = None
-                sprite.opacity = 1
+        for i, pokemon in enumerate(self.lista_pokemon):
+            if nome_digitado.lower() == pokemon["nome"].lower() and not pokemon["descoberto"]:
+                pokemon["sprite"].color = None
+                pokemon["nome_texto"].opacity = 1
+                pokemon["descoberto"] = True
+
+                numero_atual = i + 1 # cria a variavel numero_atual que representa o número do pokémon na lista_pokemon
+
+                if numero_atual == self.ultimo_numero_descoberto + 1: # verifica se o pokemon descoberto segue a sequência do anterior
+                    self.streak = min(self.streak + 1, 3)  # aumenta o streak até no máximo x3
+                else:
+                    self.streak = 1  # se a sequência for interrompida o streak volta a ser x1
+                
+                self.ultimo_numero_descoberto = numero_atual
+
+                self.pontos += 1000 * self.streak
+                
+                self.pontuacao.value = f"Pontos: {self.pontos} (Streak x{self.streak})"
                 self.input_nome.value = ""
-                nome_texto.opacity = 1
-                sprite.update()
+
+                self.pontuacao.update()
+                pokemon["sprite"].update()
+                pokemon["nome_texto"].update()
                 self.input_nome.update()
-                nome_texto.update()
+                break  # já encontrou, não precisa continuar

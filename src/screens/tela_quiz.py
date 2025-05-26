@@ -2,9 +2,10 @@ import flet as ft
 import requests
 
 class TelaQuiz(ft.Container):
-    def __init__(self, regiao: str):
+    def __init__(self, regiao: str, dificuldade: str):
         super().__init__()
         self.regiao = regiao # salva a região escolhida
+        self.dificuldade = dificuldade
 
         self.img_fundo = ft.Image( # componente para exibir uma imagem ou GIF
             src="src/assets/fundo_pc.png", # caminho para o arquivo do GIF 
@@ -115,13 +116,25 @@ class TelaQuiz(ft.Container):
 
     def adicionar_pokemon(self, numero, nome, pokemon_id): # função para adicionar os pokemon na lista_pokemon
         sprite_url = f"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/{pokemon_id}.png" # salva o sprite do pokemon correspondente
-        sprite = ft.Image(
-            src=sprite_url,
-            width=64,
-            height=64,
-            color="Black", # Aplica cor preta
-            opacity=1,
-        ) # cria a imagem do sprite
+        pokebola_url = "img/pokebola.png"
+
+        if self.dificuldade == "1":  # Modo Normal
+            sprite = ft.Image(
+                src=sprite_url,
+                width=64,
+                height=64,
+                color="Black",  # silhueta preta
+                opacity=1,
+            )
+       
+        elif self.dificuldade == "2":  # Modo Difícil
+            sprite = ft.Image(
+                src=pokebola_url,
+                width=64,
+                height=64,
+                opacity=1,
+            )
+
         nome_texto = ft.Text(value=nome.capitalize(), opacity=0, color="white", size=15) # cria o nome do pokemon que fica escondido até ser descoberto
 
         descoberto = False
@@ -140,7 +153,8 @@ class TelaQuiz(ft.Container):
             "sprite": sprite, 
             "nome_texto": nome_texto, 
             "coluna": coluna,
-            "descoberto": descoberto
+            "descoberto": descoberto,
+            "pokemon_id": pokemon_id
             }) # adiciona todas as informações dos pokemon na lista_pokemon
 
     def verificar_nome(self, e):
@@ -148,9 +162,14 @@ class TelaQuiz(ft.Container):
 
         for i, pokemon in enumerate(self.lista_pokemon):
             if nome_digitado.lower() == pokemon["nome"].lower() and not pokemon["descoberto"]:
-                pokemon["sprite"].color = None
-                pokemon["nome_texto"].opacity = 1
-                pokemon["descoberto"] = True
+                if self.dificuldade == "1":
+                    pokemon["sprite"].color = None
+                    pokemon["nome_texto"].opacity = 1
+                    pokemon["descoberto"] = True
+                elif self.dificuldade == "2":
+                    pokemon["sprite"].src = f"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/{pokemon["pokemon_id"]}.png"
+                    pokemon["nome_texto"].opacity = 1
+                    pokemon["descoberto"] = True
 
                 numero_atual = i + 1 # cria a variavel numero_atual que representa o número do pokémon na lista_pokemon
 

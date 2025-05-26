@@ -116,7 +116,7 @@ class TelaQuiz(ft.Container):
 
     def adicionar_pokemon(self, numero, nome, pokemon_id): # função para adicionar os pokemon na lista_pokemon
         sprite_url = f"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/{pokemon_id}.png" # salva o sprite do pokemon correspondente
-        pokebola_url = "img/pokebola.png"
+        pokebola_url = "src/assets/pokebola.png"
 
         if self.dificuldade == "1":  # Modo Normal
             sprite = ft.Image(

@@ -1,11 +1,13 @@
 import flet as ft
 import requests
+import asyncio
 
 class TelaQuiz(ft.Container):
-    def __init__(self, regiao: str, dificuldade: str):
+    def __init__(self, regiao: str, dificuldade: str, page: ft.Page):
         super().__init__()
         self.regiao = regiao # salva a região escolhida
         self.dificuldade = dificuldade
+        self.page = page
 
         self.img_fundo = ft.Image( # componente para exibir uma imagem ou GIF
             src="src/assets/fundo_pc.png", # caminho para o arquivo do GIF 
@@ -65,6 +67,12 @@ class TelaQuiz(ft.Container):
             size=15
         )
 
+        self.hora, self.min, self.sec = 0, 0, 0
+
+        self.label_tempo = ft.Text(
+            f"Tempo restante / {self.hora}:{self.min}:{self.sec}",
+        )
+
         # Campo de input para adivinhação
         self.input_nome = ft.TextField(
             label="Digite o nome do Pokémon",
@@ -86,6 +94,7 @@ class TelaQuiz(ft.Container):
                 ft.Container(  # linha com input e pontuação
                     content=ft.Row(
                         controls=[
+                            self.label_tempo,
                             self.input_nome,
                             self.pontuacao
                         ],
@@ -113,6 +122,29 @@ class TelaQuiz(ft.Container):
         )
 
         print(self.lista_pokemon)
+
+    async def rodar_tempo(self): # cria uma função assíncrona que permite que outras partes do programa rodem enquanto ela funciona em segundo plano
+        if self.regiao == "national":
+            self.tempo = 5400
+        else:
+            self.tempo = 900
+
+        for t in range(self.tempo, 0, -1): # cria um loop que começa com o valor de self.tempo e diminui de 1 em 1 até zerar
+            self.tempo_restante = t
+            horas = t // 3600
+            minutos = (t % 3600) // 60
+            segundos = t % 60
+
+            self.label_tempo.value = f"⏱ Tempo restante / {horas:02}:{minutos:02}:{segundos:02}" # atualiza o valor do label_tempo
+            self.label_tempo.update() # atualiza o label_tempo na interface
+            await asyncio.sleep(1) # espera 1 segundo antes de rodar o loop novamente
+        
+        self.label_tempo.value = "⏱ Tempo esgotado!" # quando o cronometro zerar o valor de self.tempo vira esse
+        self.label_tempo.update() # atualiza o label_tempo na interface
+        self.mostrar_popup_final(venceu=False)
+
+    def did_mount(self): # did_mount é um método do próprio flet que é chamado automáticamente quanto o controle(tela) é adicionado na página
+        self.page.run_task(self.rodar_tempo) # roda a função rodar_tempo assim que a pagina tela_quiz é carregada
 
     def adicionar_pokemon(self, numero, nome, pokemon_id): # função para adicionar os pokemon na lista_pokemon
         sprite_url = f"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/{pokemon_id}.png" # salva o sprite do pokemon correspondente
@@ -181,7 +213,6 @@ class TelaQuiz(ft.Container):
                 self.ultimo_numero_descoberto = numero_atual
 
                 self.pontos += 1000 * self.streak
-                
                 self.pontuacao.value = f"Pontos: {self.pontos} (Streak x{self.streak})"
                 self.input_nome.value = ""
 
@@ -190,3 +221,39 @@ class TelaQuiz(ft.Container):
                 pokemon["nome_texto"].update()
                 self.input_nome.update()
                 break  # já encontrou, não precisa continuar
+            else:
+                return
+            
+        if all(p["descoberto"] for p in self.lista_pokemon):
+                tempo_restante = getattr(self, "tempo_restante", 0)
+                self.mostrar_popup_final(venceu=True, tempo_restante=tempo_restante)
+
+    def mostrar_popup_final(self, venceu: bool, tempo_restante: int = 0):
+        if venceu:
+            bonus = (tempo_restante // 60) * 10000
+            self.pontos += bonus
+            mensagem = f"🎉 Parabéns! Você descobriu todos os Pokémon!\n\nBônus: +{bonus} pontos\nPontuação final: {self.pontos}"
+        else:
+            mensagem = f"⏱ Tempo esgotado!\n\nPontuação final: {self.pontos}"
+
+        popup = ft.AlertDialog(
+            modal=True,  # <<< ESSENCIAL: impede interação com o fundo
+            title=ft.Text("Fim de Jogo"),
+            content=ft.Text(mensagem),
+            actions=[
+                ft.TextButton(
+                    "OK",
+                    on_click=lambda e: self.fechar_popup()
+                )
+            ],
+            actions_alignment=ft.MainAxisAlignment.END,
+            open=True,
+        )
+
+        self.page.dialog = popup
+        self.page.update()
+
+    def fechar_popup(self):
+        self.page.dialog.open = False
+        self.page.update()
+        self.page.go("/")  # Redireciona de volta ao menu ou onde quiser

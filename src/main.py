@@ -19,7 +19,7 @@ def main(page: ft.Page):
             def selecionar_dificuldade(dificuldade):
                 print(f"Iniciando quiz da região: {regiao}")
                 page.clean()
-                page.add(TelaQuiz(regiao, dificuldade))  # cria a tela do quiz com base na região
+                page.add(TelaQuiz(regiao, dificuldade, page))  # cria a tela do quiz com base na região
             page.clean()
             page.add(TelaDificuldade(selecionar_dificuldade))
         page.clean()

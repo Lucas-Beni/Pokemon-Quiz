@@ -20,6 +20,20 @@ class TelaInicial(ft.Container):
             height=50 # altura do botão
         )
 
+        self.input_nick = ft.TextField(
+            label="Digite seu nick",
+            width=300,
+            color="White",
+            border_color="White",
+            label_style=ft.TextStyle(color="white")
+        )
+
+        self.botao_nick = ft.ElevatedButton(
+            text="Ok",
+            width=50,
+            height=50,
+        )
+
         self.content = ft.Stack( # variável que contém todo o conteúdo da tela. ft.Stack permite a sobreposição de elementos na tela
             controls=[
                 self.gif_fundo, # coloca o GIF como a camada mais inferior da tela
@@ -32,6 +46,15 @@ class TelaInicial(ft.Container):
                     ),
                     alignment=ft.alignment.center, # alinha o conteúdo dentro do Container no centro
                     expand=True # faz o container usar todo o espaço disponível
+                ),
+                ft.Container(
+                    ft.Row(
+                        controls=[
+                            self.input_nick,
+                            self.botao_nick,
+                        ],
+                    ),
+                    margin=ft.margin.only(top=50, left=1100)
                 )
             ],
             width=1600, # define a largura do conteudo na tela

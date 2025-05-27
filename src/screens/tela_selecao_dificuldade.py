@@ -40,11 +40,14 @@ class TelaDificuldade(ft.Container):
 
         self.conteudo_interface = ft.Column(
             controls=[
-                ft.Text(
-                    "Escolha uma dificuldade para o quiz:",
-                    size=30,
-                    weight="bold",
-                    color=ft.Colors.WHITE
+                ft.Container(
+                    content=ft.Text( # cria o texto que será utilizado como titulo
+                        "Escolha uma região para o quiz:",
+                        size=30,
+                        weight="bold",
+                        color=ft.Colors.WHITE,
+                    ),
+                margin=ft.margin.only(top=-200)
                 ),
                 ft.Row(
                     controls=[btn_normal, btn_dificil],

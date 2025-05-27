@@ -10,7 +10,9 @@ class TelaQuiz(ft.Container):
         self.dificuldade = dificuldade
         self.page = page
 
-        self.dialogo_final: Optional[ft.AlertDialog] = None
+        # cria a variavel que vai armazenar o objeto do pop up quando ele for criado 
+        self.dialogo_final: Optional[ft.AlertDialog] = None 
+        # no caso ele começa como None e quando o pop up é criado ele armazena
 
         self.img_fundo = ft.Image( # componente para exibir uma imagem ou GIF
             src="src/assets/fundo_pc.png", # caminho para o arquivo do GIF 
@@ -230,15 +232,19 @@ class TelaQuiz(ft.Container):
         # Verifica se todos os Pokémon foram descobertos
         if all(p["descoberto"] for p in self.lista_pokemon):
             print("✔️ Todos Pokémon descobertos - mostrando popup")
-            tempo_restante = getattr(self, "tempo_restante", 0)
+            tempo_restante = getattr(self, "tempo_restante", 0) # !
             self.mostrar_popup_final(venceu=True, tempo_restante=tempo_restante)
+            # Chama a função que cria e exibe o popup, dizendo que o jogador venceu e passando o tempo restante para calcular o bônus.
 
     def mostrar_popup_final(self, venceu: bool, tempo_restante: int = 0):
+        # Se a pessoa venceu (descobriu todos os pokemon) a função calcula o bonus
         if venceu:
             minutos_restantes = tempo_restante // 60
             bonus = minutos_restantes * 10000
             self.pontos += bonus
             mensagem = f"🎉 Parabéns! Você descobriu todos os Pokémon!\n\nBônus: +{bonus} pontos ({minutos_restantes} min)\nPontuação final: {self.pontos}"
+
+        # Se ela perdeu (tempo esgotou) a função mostra quantos pontos foram conquistados
         else:
             mensagem = f"⏱ Tempo esgotado!\n\nPontuação final: {self.pontos}"
 
@@ -246,17 +252,17 @@ class TelaQuiz(ft.Container):
         self.input_nome.disabled = True
         self.input_nome.update()
 
-        # Fecha diálogo existente se houver
+        # Se já houver um pop up aberto, ele fecha antes de abrir um novo
         if self.dialogo_final is not None:
             self.dialogo_final.open = False
             self.page.update()
 
         # Cria novo diálogo
         self.dialogo_final = ft.AlertDialog(
-            modal=True,
+            modal=True, # impede clicar fora do pop up para fechar
             title=ft.Text("Fim de Jogo"),
             content=ft.Text(mensagem),
-            actions=[
+            actions=[ # cria o botão de OK para fechar o pop up
                 ft.TextButton(
                     "OK",
                     on_click=lambda e: self.fechar_popup()
@@ -266,6 +272,7 @@ class TelaQuiz(ft.Container):
 
         # Mostra o diálogo de forma especial para Flet 0.28.2
         self.page.overlay.append(self.dialogo_final)
+        # Abre o pop up
         self.dialogo_final.open = True
         self.page.update()
 

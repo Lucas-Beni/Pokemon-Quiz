@@ -39,18 +39,24 @@ class TelaSelecaoRegiao(ft.Container):
 
         self.conteudo_interface = ft.Column( # variável que contém o titulo da pagina e os botões de cada região
             controls=[
-                ft.Text( # cria o texto que será utilizado como titulo
-                    "Escolha uma região para o quiz:",
-                    size=30,
-                    weight="bold",
-                    color=ft.Colors.WHITE
+                ft.Container(
+                    content=ft.Text( # cria o texto que será utilizado como titulo
+                        "Escolha uma região para o quiz:",
+                        size=30,
+                        weight="bold",
+                        color=ft.Colors.WHITE,
+                    ),
+                margin=ft.margin.only(top=-200)
                 ),
-                ft.Row( # cria uma linha que posiciona todos os botões em sequencia no meio da tela
-                    controls=botoes,
-                    wrap=True,
-                    alignment=ft.MainAxisAlignment.CENTER,
-                    spacing=20,
-                    run_spacing=20
+                ft.Container(
+                    ft.Row( # cria uma linha que posiciona todos os botões em sequencia no meio da tela
+                        controls=botoes,
+                        wrap=True,
+                        alignment=ft.MainAxisAlignment.CENTER,
+                        spacing=20,
+                        run_spacing=20,
+                    ),
+                    width=1600
                 )
             ],
             alignment=ft.MainAxisAlignment.CENTER, # posiciona a variavel conteudo_interface no centro verticalmente

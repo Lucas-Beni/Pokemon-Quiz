@@ -1,6 +1,7 @@
 import flet as ft
 import requests
 import asyncio
+from typing import Optional
 
 class TelaQuiz(ft.Container):
     def __init__(self, regiao: str, dificuldade: str, page: ft.Page):
@@ -8,6 +9,8 @@ class TelaQuiz(ft.Container):
         self.regiao = regiao # salva a região escolhida
         self.dificuldade = dificuldade
         self.page = page
+
+        self.dialogo_final: Optional[ft.AlertDialog] = None
 
         self.img_fundo = ft.Image( # componente para exibir uma imagem ou GIF
             src="src/assets/fundo_pc.png", # caminho para o arquivo do GIF 
@@ -60,6 +63,7 @@ class TelaQuiz(ft.Container):
         self.streak = 0
         self.ultimo_numero_descoberto = 0
         self.pontos = 0
+
 
         self.pontuacao = ft.Text(
             f"Pontos: {self.pontos} (Streak x{self.streak})",
@@ -141,6 +145,7 @@ class TelaQuiz(ft.Container):
         
         self.label_tempo.value = "⏱ Tempo esgotado!" # quando o cronometro zerar o valor de self.tempo vira esse
         self.label_tempo.update() # atualiza o label_tempo na interface
+        print("Tempo esgotado - chamando popup")
         self.mostrar_popup_final(venceu=False)
 
     def did_mount(self): # did_mount é um método do próprio flet que é chamado automáticamente quanto o controle(tela) é adicionado na página
@@ -199,7 +204,7 @@ class TelaQuiz(ft.Container):
                     pokemon["nome_texto"].opacity = 1
                     pokemon["descoberto"] = True
                 elif self.dificuldade == "2":
-                    pokemon["sprite"].src = f"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/{pokemon["pokemon_id"]}.png"
+                    pokemon["sprite"].src = f"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/{pokemon['pokemon_id']}.png"
                     pokemon["nome_texto"].opacity = 1
                     pokemon["descoberto"] = True
 
@@ -221,23 +226,34 @@ class TelaQuiz(ft.Container):
                 pokemon["nome_texto"].update()
                 self.input_nome.update()
                 break  # já encontrou, não precisa continuar
-            else:
-                return
-            
+
+        # Verifica se todos os Pokémon foram descobertos
         if all(p["descoberto"] for p in self.lista_pokemon):
-                tempo_restante = getattr(self, "tempo_restante", 0)
-                self.mostrar_popup_final(venceu=True, tempo_restante=tempo_restante)
+            print("✔️ Todos Pokémon descobertos - mostrando popup")
+            tempo_restante = getattr(self, "tempo_restante", 0)
+            self.mostrar_popup_final(venceu=True, tempo_restante=tempo_restante)
 
     def mostrar_popup_final(self, venceu: bool, tempo_restante: int = 0):
         if venceu:
-            bonus = (tempo_restante // 60) * 10000
+            minutos_restantes = tempo_restante // 60
+            bonus = minutos_restantes * 10000
             self.pontos += bonus
-            mensagem = f"🎉 Parabéns! Você descobriu todos os Pokémon!\n\nBônus: +{bonus} pontos\nPontuação final: {self.pontos}"
+            mensagem = f"🎉 Parabéns! Você descobriu todos os Pokémon!\n\nBônus: +{bonus} pontos ({minutos_restantes} min)\nPontuação final: {self.pontos}"
         else:
             mensagem = f"⏱ Tempo esgotado!\n\nPontuação final: {self.pontos}"
 
-        popup = ft.AlertDialog(
-            modal=True,  # <<< ESSENCIAL: impede interação com o fundo
+        # Desabilita o input
+        self.input_nome.disabled = True
+        self.input_nome.update()
+
+        # Fecha diálogo existente se houver
+        if self.dialogo_final is not None:
+            self.dialogo_final.open = False
+            self.page.update()
+
+        # Cria novo diálogo
+        self.dialogo_final = ft.AlertDialog(
+            modal=True,
             title=ft.Text("Fim de Jogo"),
             content=ft.Text(mensagem),
             actions=[
@@ -245,15 +261,18 @@ class TelaQuiz(ft.Container):
                     "OK",
                     on_click=lambda e: self.fechar_popup()
                 )
-            ],
-            actions_alignment=ft.MainAxisAlignment.END,
-            open=True,
+            ]
         )
 
-        self.page.dialog = popup
+        # Mostra o diálogo de forma especial para Flet 0.28.2
+        self.page.overlay.append(self.dialogo_final)
+        self.dialogo_final.open = True
         self.page.update()
 
     def fechar_popup(self):
-        self.page.dialog.open = False
-        self.page.update()
-        self.page.go("/")  # Redireciona de volta ao menu ou onde quiser
+        if self.dialogo_final is not None:
+            self.dialogo_final.open = False
+            if self.dialogo_final in self.page.overlay:
+                self.page.overlay.remove(self.dialogo_final)
+            self.page.update()
+        self.dialogo_final = None

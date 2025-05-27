@@ -12,6 +12,9 @@ def main(page: ft.Page):
     page.window.center()
     page.padding = 0
     page.bgcolor = ft.Colors.ORANGE_100
+    
+    # Configuração importante para diálogos
+    page.overlay.clear()
 
     # Função chamada ao clicar em "Jogar"
     def iniciar_jogo(_):
@@ -19,7 +22,10 @@ def main(page: ft.Page):
             def selecionar_dificuldade(dificuldade):
                 print(f"Iniciando quiz da região: {regiao}")
                 page.clean()
-                page.add(TelaQuiz(regiao, dificuldade, page))  # cria a tela do quiz com base na região
+                quiz = TelaQuiz(regiao, dificuldade, page)
+                page.add(quiz)
+                # Garante que o quiz foi montado na página
+                quiz.did_mount() if hasattr(quiz, 'did_mount') else None
             page.clean()
             page.add(TelaDificuldade(selecionar_dificuldade))
         page.clean()

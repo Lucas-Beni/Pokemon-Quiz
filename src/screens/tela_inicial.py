@@ -1,4 +1,5 @@
 import flet as ft
+import asyncio
 
 class TelaInicial(ft.Container):
     def __init__(self, ao_jogar_callback): # Construtor da classe TelaInicial, recebe a função que será chamada ao clicar em "Jogar"
@@ -15,7 +16,7 @@ class TelaInicial(ft.Container):
 
         self.botao_jogar = ft.ElevatedButton( # variável que representa o botão de jogar
             text="Jogar", # texto dentro do botão
-            on_click=self.ao_jogar_callback, # função que será chamada quando o botão jogar for clicado
+            on_click=self.enviar_nick, # função que será chamada quando o botão jogar for clicado
             width=200, # largura do botão
             height=50 # altura do botão
         )
@@ -28,10 +29,12 @@ class TelaInicial(ft.Container):
             label_style=ft.TextStyle(color="white")
         )
 
-        self.botao_nick = ft.ElevatedButton(
-            text="Ok",
-            width=50,
-            height=50,
+        self.erro = ft.Text(
+            "Você precisa inserir um nick antes de jogar!!",
+            size=16,
+            weight="bold",
+            color=ft.Colors.RED,
+            opacity=0
         )
 
         self.content = ft.Stack( # variável que contém todo o conteúdo da tela. ft.Stack permite a sobreposição de elementos na tela
@@ -48,11 +51,12 @@ class TelaInicial(ft.Container):
                     expand=True # faz o container usar todo o espaço disponível
                 ),
                 ft.Container(
-                    ft.Row(
+                    ft.ResponsiveRow(
                         controls=[
                             self.input_nick,
-                            self.botao_nick,
+                            self.erro
                         ],
+                        width=350,
                     ),
                     margin=ft.margin.only(top=50, left=1100)
                 )
@@ -60,3 +64,10 @@ class TelaInicial(ft.Container):
             width=1600, # define a largura do conteudo na tela
             height=900 # define a altura do conteudo na tela
         )
+
+    def enviar_nick(self, e):
+        nick = self.input_nick.value.strip()
+        if nick:
+            self.ao_jogar_callback(nick)
+            
+

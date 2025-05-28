@@ -26,14 +26,14 @@ class TelaDificuldade(ft.Container):
 
         btn_normal = ft.ElevatedButton(
             text="Normal",
-            on_click=lambda e: self.ao_dificuldade_callback("1"),
+            on_click=lambda e: self.ao_dificuldade_callback("normal"),
             width=200,
             on_hover=lambda e: ao_hover(e, "Modo Normal: Quiz com silhuetas dos pokémon.")
         )
 
         btn_dificil = ft.ElevatedButton(
             text="Difícil",
-            on_click=lambda e: self.ao_dificuldade_callback("2"),
+            on_click=lambda e: self.ao_dificuldade_callback("dificil"),
             width=200,
             on_hover=lambda e: ao_hover(e, "Modo Difícil: Quiz sem silhuetas.")
         )

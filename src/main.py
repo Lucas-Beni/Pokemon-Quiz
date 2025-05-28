@@ -3,6 +3,21 @@ from screens.tela_inicial import TelaInicial
 from screens.tela_selecao import TelaSelecaoRegiao
 from screens.tela_selecao_dificuldade import TelaDificuldade
 from screens.tela_quiz import TelaQuiz  # uma única tela para qualquer região
+import sqlite3
+
+conn = sqlite3.connect("pokequiz.db")
+
+cursor = conn.cursor()
+
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS pontuacoes(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    nick TEXT UNIQUE,
+    regiao TEXT,
+    dificuldade TEXT,
+    pontuacao INTEGER
+)
+""")
 
 def main(page: ft.Page):
     # Configurações da janela
@@ -17,12 +32,12 @@ def main(page: ft.Page):
     page.overlay.clear()
 
     # Função chamada ao clicar em "Jogar"
-    def iniciar_jogo(_):
+    def iniciar_jogo(nick):
         def iniciar_quiz(regiao):  # chamada quando a região é selecionada
             def selecionar_dificuldade(dificuldade):
                 print(f"Iniciando quiz da região: {regiao}")
                 page.clean()
-                quiz = TelaQuiz(regiao, dificuldade, page)
+                quiz = TelaQuiz(regiao, dificuldade, page, nick)
                 page.add(quiz)
                 # Garante que o quiz foi montado na página
                 quiz.did_mount() if hasattr(quiz, 'did_mount') else None

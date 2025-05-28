@@ -2,13 +2,15 @@ import flet as ft
 import requests
 import asyncio
 from typing import Optional
+import sqlite3
 
 class TelaQuiz(ft.Container):
-    def __init__(self, regiao: str, dificuldade: str, page: ft.Page):
+    def __init__(self, regiao: str, dificuldade: str, page: ft.Page, nick: str):
         super().__init__()
         self.regiao = regiao # salva a região escolhida
         self.dificuldade = dificuldade
         self.page = page
+        self.nick = nick
 
         # cria a variavel que vai armazenar o objeto do pop up quando ele for criado 
         self.dialogo_final: Optional[ft.AlertDialog] = None 
@@ -157,7 +159,7 @@ class TelaQuiz(ft.Container):
         sprite_url = f"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/{pokemon_id}.png" # salva o sprite do pokemon correspondente
         pokebola_url = "src/assets/pokebola.png"
 
-        if self.dificuldade == "1":  # Modo Normal
+        if self.dificuldade == "normal":  # Modo Normal
             sprite = ft.Image(
                 src=sprite_url,
                 width=64,
@@ -166,7 +168,7 @@ class TelaQuiz(ft.Container):
                 opacity=1,
             )
        
-        elif self.dificuldade == "2":  # Modo Difícil
+        elif self.dificuldade == "dificil":  # Modo Difícil
             sprite = ft.Image(
                 src=pokebola_url,
                 width=64,
@@ -201,11 +203,11 @@ class TelaQuiz(ft.Container):
 
         for i, pokemon in enumerate(self.lista_pokemon):
             if nome_digitado.lower() == pokemon["nome"].lower() and not pokemon["descoberto"]:
-                if self.dificuldade == "1":
+                if self.dificuldade == "normal":
                     pokemon["sprite"].color = None
                     pokemon["nome_texto"].opacity = 1
                     pokemon["descoberto"] = True
-                elif self.dificuldade == "2":
+                elif self.dificuldade == "dificil":
                     pokemon["sprite"].src = f"https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/{pokemon['pokemon_id']}.png"
                     pokemon["nome_texto"].opacity = 1
                     pokemon["descoberto"] = True
@@ -275,6 +277,7 @@ class TelaQuiz(ft.Container):
         # Abre o pop up
         self.dialogo_final.open = True
         self.page.update()
+        self.salvar(self.nick, self.regiao, self.dificuldade, self.pontos)
 
     def fechar_popup(self):
         if self.dialogo_final is not None:
@@ -283,3 +286,13 @@ class TelaQuiz(ft.Container):
                 self.page.overlay.remove(self.dialogo_final)
             self.page.update()
         self.dialogo_final = None
+
+    def salvar(self, nick, regiao, dificuldade, pontuacao):
+        conn = sqlite3.connect("pokequiz.db")
+
+        cursor = conn.cursor()
+
+        cursor.execute("INSERT INTO pontuacoes (nick, regiao, dificuldade, pontuacao) VALUES (?,?,?,?)", (nick,regiao,dificuldade,pontuacao))
+
+        conn.commit()
+        conn.close()

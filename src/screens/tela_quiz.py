@@ -5,12 +5,13 @@ from typing import Optional
 import sqlite3
 
 class TelaQuiz(ft.Container):
-    def __init__(self, regiao: str, dificuldade: str, page: ft.Page, nick: str):
+    def __init__(self, regiao: str, dificuldade: str, page: ft.Page, nick: str, voltar_callback=None):
         super().__init__()
-        self.regiao = regiao # salva a região escolhida
+        self.regiao = regiao
         self.dificuldade = dificuldade
         self.page = page
         self.nick = nick
+        self.voltar_callback = voltar_callback
 
         # cria a variavel que vai armazenar o objeto do pop up quando ele for criado 
         self.dialogo_final: Optional[ft.AlertDialog] = None 
@@ -280,12 +281,21 @@ class TelaQuiz(ft.Container):
         self.salvar(self.nick, self.regiao, self.dificuldade, self.pontos)
 
     def fechar_popup(self):
-        if self.dialogo_final is not None:
-            self.dialogo_final.open = False
+        if self.dialogo_final:
+            # Primeiro, remove do overlay se estiver lá
             if self.dialogo_final in self.page.overlay:
                 self.page.overlay.remove(self.dialogo_final)
+            
+            # Fecha visualmente
+            self.dialogo_final.open = False
             self.page.update()
-        self.dialogo_final = None
+            
+            # Limpa referência
+            self.dialogo_final = None
+
+        # Volta para o menu
+        if self.voltar_callback:
+            self.voltar_callback()
 
     def salvar(self, nick, regiao, dificuldade, pontuacao):
         conn = sqlite3.connect("pokequiz.db")

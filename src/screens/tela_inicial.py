@@ -2,7 +2,7 @@ import flet as ft
 import asyncio
 
 class TelaInicial(ft.Container):
-    def __init__(self, ao_jogar_callback): # Construtor da classe TelaInicial, recebe a função que será chamada ao clicar em "Jogar"
+    def __init__(self, ao_jogar_callback, ao_leaderboard_callback): # Construtor da classe TelaInicial, recebe a função que será chamada ao clicar em "Jogar"
         super().__init__() # esse comando é comum em classes que usam outras classes. Nesse caso o super() chama a classe mãe UserControl e permite que seja inicializado corretamente
 
         self.ao_jogar_callback = ao_jogar_callback # cria a função que será chamada quando o botão jogar for clicado
@@ -17,6 +17,13 @@ class TelaInicial(ft.Container):
         self.botao_jogar = ft.ElevatedButton( # variável que representa o botão de jogar
             text="Jogar", # texto dentro do botão
             on_click=self.enviar_nick, # função que será chamada quando o botão jogar for clicado
+            width=200, # largura do botão
+            height=50 # altura do botão
+        )
+
+        self.botao_leaderboard = ft.ElevatedButton( # variável que representa o botão de jogar
+            text="Leaderboard", # texto dentro do botão
+            on_click=ao_leaderboard_callback, # função que será chamada quando o botão jogar for clicado
             width=200, # largura do botão
             height=50 # altura do botão
         )
@@ -42,7 +49,7 @@ class TelaInicial(ft.Container):
                 self.gif_fundo, # coloca o GIF como a camada mais inferior da tela
                 ft.Container( # conteiner que centraliza o conteúdo na tela
                     content=ft.Column( # (content) coloca o Column dentro do Container/ (Column) empilha elementos verticalmente
-                        controls=[self.botao_jogar], # cria o botão jogar na tela
+                        controls=[self.botao_jogar, self.botao_leaderboard], # cria o botão jogar na tela
                         alignment=ft.MainAxisAlignment.CENTER, # ajusta o conteúdo no centro verticalmente
                         horizontal_alignment=ft.CrossAxisAlignment.CENTER, # ajusta o conteúdo no centro verticalmente
                         spacing=20, # Espaçamento entre os elementos da coluna
@@ -65,9 +72,13 @@ class TelaInicial(ft.Container):
             height=900 # define a altura do conteudo na tela
         )
 
-    def enviar_nick(self, e):
+    async def enviar_nick(self, e):
         nick = self.input_nick.value.strip()
         if nick:
             self.ao_jogar_callback(nick)
-            
-
+        else:
+            self.erro.opacity = 1
+            self.erro.update()
+            await asyncio.sleep(2)
+            self.erro.opacity = 0
+            self.erro.update()
